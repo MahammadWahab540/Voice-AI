@@ -1,5 +1,6 @@
 import os
 import asyncio
+import time
 from dotenv import load_dotenv
 
 from livekit import agents
@@ -44,6 +45,7 @@ def initialize_rag_pipeline():
     global QUERY_ENGINE
     if QUERY_ENGINE is None:
         print(f"Initializing RAG pipeline with {NARRATIVE_FILE_NAME}...")
+        start_time_rag_init = time.time() # Start timing
         try:
             Settings.llm = Gemini(model_name="models/gemini-pro")
             Settings.embed_model = GeminiEmbedding(model_name="models/embedding-001")
@@ -78,13 +80,17 @@ def initialize_rag_pipeline():
                 print(f"WARNING: No valid documents found or '{NARRATIVE_FILE_NAME}' seems to be a placeholder.")
                 print("Agent will lack specific knowledge from the narrative. Please provide the correct file content.")
                 QUERY_ENGINE = None
+                print("RAG pipeline initialization skipped/failed, no timing available.") # Added timing info
             else:
                 index = VectorStoreIndex.from_documents(documents)
                 QUERY_ENGINE = index.as_query_engine(similarity_top_k=4, response_mode="refine") # Adjusted for detailed narrative
+                end_time_rag_init = time.time() # End timing
+                print(f"RAG pipeline initialization time: {end_time_rag_init - start_time_rag_init:.4f} seconds")
                 print("RAG pipeline initialized successfully.")
 
+
         except Exception as e:
-            print(f"Error initializing RAG pipeline: {e}")
+            print(f"Error initializing RAG pipeline: {e}, no timing available.") # Added timing info
             QUERY_ENGINE = None
 
 class NxtWaveOnboardingAgent(Agent): # Renamed class
@@ -109,7 +115,10 @@ class NxtWaveOnboardingAgent(Agent): # Renamed class
         if user_query and len(user_query.strip()) > 2: # Only query RAG for substantive input
             print(f"User query for RAG: {user_query}")
             try:
+                start_time_query = time.time()
                 response = await asyncio.to_thread(self.query_engine.query, user_query)
+                end_time_query = time.time()
+                print(f"Llama Index query time: {end_time_query - start_time_query:.4f} seconds")
                 rag_content = str(response)
                 print(f"RAG retrieved content snippet: {rag_content[:250]}...")
 
@@ -215,9 +224,12 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect()
     print(f"{AGENT_SPOKEN_NAME} ({AGENT_ROLE} from {CALLING_FROM_COMPANY}) connected. Waiting for user interaction.")
 
+    start_time_initial_reply = time.time()
     await session.generate_reply(
         instructions=f"The call has just connected. As '{AGENT_SPOKEN_NAME}', the NxtWave {AGENT_ROLE}, begin the conversation by following Section 1 of your primary instructions: Greet the parent, handle initial queries like 'Hello' or 'Yevaru?', confirm their identity, clearly introduce yourself and NxtWave, state the call's purpose, and assertively request their time."
     )
+    end_time_initial_reply = time.time()
+    print(f"Initial session.generate_reply time: {end_time_initial_reply - start_time_initial_reply:.4f} seconds")
 
 if __name__ == "__main__":
     if "GOOGLE_API_KEY" not in os.environ and "GOOGLE_APPLICATION_CREDENTIALS" not in os.environ:
