@@ -1,0 +1,8 @@
+livekit
+livekit-agents[google]
+livekit-plugins-google
+livekit-plugins-noise-cancellation
+llama-index
+llama-index-llms-gemini
+llama-index-embeddings-gemini
+python-dotenv
