@@ -45,14 +45,60 @@ The workflow is configured to run: `python agent.py dev`
 
 This starts the LiveKit agent in development mode and connects to your LiveKit server.
 
+## Frontend Application
+
+### Technology Stack
+- React 18 + TypeScript
+- Vite 7.2
+- TailwindCSS + custom UI components
+- React Router for navigation
+- localStorage for session persistence
+
+### Features
+- **Auth Screen** (`/auth`): User registration with name and phone validation
+- **Call Screen** (`/call`): Interactive voice conversation interface with:
+  - Stage-based stepper showing conversation progress
+  - Voice visualizer with animated states (speaking, listening, thinking, etc.)
+  - Real-time transcript panel showing agent and user messages
+  - Controls for mute/unmute and ending call
+  - Responsive design (desktop + mobile)
+
+### Conversation Stages
+1. INTRO - Introduction and rapport building
+2. PROGRAM_VALUE_L1 - Program value explanation
+3. PAYMENT_STRUCTURE - Payment options discussion
+4. NBFC - No-Cost EMI explanation
+5. RCA - Co-applicant requirements
+6. KYC - Document submission
+7. END_FLOW - Call completion
+
+### File Structure
+```
+frontend/
+├── src/
+│   ├── components/      # UI components
+│   ├── screens/         # Auth and Main screens
+│   ├── hooks/           # useConversationManager hook
+│   ├── lib/             # Utilities (storage, stageMachine, utils)
+│   └── types.ts         # TypeScript type definitions
+├── vite.config.ts       # Vite configuration
+└── tailwind.config.js   # Tailwind configuration
+```
+
 ## Recent Changes
-- 2025-11-08: Initial project setup in Replit environment
-  - Renamed main file from "agent_2 (1).py" to "agent.py"
+- 2025-11-08: Complete project setup with frontend and backend
+  - **Backend**: Renamed main file from "agent_2 (1).py" to "agent.py"
   - Created requirements.txt with all dependencies
   - Installed Python 3.11 and all required packages
   - Created data directory structure
   - Set up .gitignore for Python project
-  - Configured LiveKit Voice Agent workflow
+  - Configured Backend Agent workflow
+  - **Frontend**: Created React + TypeScript + Vite application
+  - Set up TailwindCSS with custom color scheme
+  - Implemented all UI components (Stepper, VoiceVisualizer, TranscriptionPanel, Controls)
+  - Created Auth and Main screens with routing
+  - Implemented localStorage persistence for session management
+  - Configured Frontend workflow on port 5000
 
 ## User Preferences
 None specified yet.

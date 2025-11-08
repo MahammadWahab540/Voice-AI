@@ -1,13 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { AgentState, StageId, Message } from '../types';
 import { storage } from '../lib/storage';
-import { parseStageComplete } from '../lib/stageMachine';
+import { parseStageComplete, getNextStageId } from '../lib/stageMachine';
 
 export const useConversationManager = () => {
   const [state, setState] = useState<AgentState>('idle');
   const [muted, setMuted] = useState(false);
   const [currentStageId, setCurrentStageId] = useState<StageId>(() => storage.getStage());
   const [transcript, setTranscript] = useState<Message[]>(() => storage.getTranscript());
+  const isInitialized = useRef(false);
 
   useEffect(() => {
     storage.saveStage(currentStageId);
@@ -32,13 +33,38 @@ export const useConversationManager = () => {
     }
   }, []);
 
+  const getStageResponse = useCallback((stageId: StageId, includeCompletion: boolean = true): string => {
+    const responses: Record<StageId, string> = {
+      INTRO: 'Namaste! Nenu Harshitha, NxtWave EdTech Company nunchi Registration Expert ni మాట్లాడుతున్నాను. Your child has successfully reserved a seat in our program. Would you have 10 minutes to discuss this?',
+      PROGRAM_VALUE_L1: 'Let me explain the program value. NxtWave provides industry-ready skills through hands-on learning, IDP, and Growth Cycles with dedicated Success Coaches.',
+      PAYMENT_STRUCTURE: 'For payment, we offer two options: Full Payment with discounts, or No-Cost EMI through our NBFC partners with zero interest.',
+      NBFC: 'Our NBFC partners like Varthana and Bajaj Finserv are RBI-approved and offer No-Cost EMI - you pay no interest, just small monthly installments with no collateral needed.',
+      RCA: 'For No-Cost EMI, we need a co-applicant - typically a parent. We will need PAN, Aadhaar, bank proof, and a consent video.',
+      KYC: 'For KYC, please submit: PAN card, Aadhaar card, bank statement, recent photo, and a short consent video following our script.',
+      END_FLOW: 'Thank you for your time today! We have covered all the important aspects. Please submit your documents to confirm your child\'s seat and benefits.',
+    };
+
+    const nextStage = getNextStageId(stageId);
+    const baseResponse = responses[stageId] || 'Thank you for your response.';
+    
+    if (includeCompletion && nextStage) {
+      return `${baseResponse} [STAGE_COMPLETE:${nextStage}]`;
+    }
+    return baseResponse;
+  }, []);
+
   const connect = useCallback(() => {
+    if (isInitialized.current) return;
+    isInitialized.current = true;
+
     setState('connecting');
     setTimeout(() => {
       setState('listening');
-      addMessage('agent', 'Namaste! Nenu Harshitha, NxtWave EdTech Company nunchi Registration Expert ni మాట్లాడుతున్నాను. How are you doing today?');
+      if (transcript.length === 0) {
+        addMessage('agent', getStageResponse('INTRO', false));
+      }
     }, 2000);
-  }, [addMessage]);
+  }, [addMessage, getStageResponse, transcript.length]);
 
   const mute = useCallback(() => {
     setMuted((prev) => !prev);
@@ -50,19 +76,14 @@ export const useConversationManager = () => {
     
     setTimeout(() => {
       setState('speaking');
-      const responses = [
-        'That\'s great to hear! Your child has successfully reserved a seat in our program.',
-        'Let me explain the program value and how it can help your child\'s career.',
-        'We offer both Full Payment and No-Cost EMI options for your convenience.',
-      ];
-      const response = responses[Math.floor(Math.random() * responses.length)];
       
       setTimeout(() => {
+        const response = getStageResponse(currentStageId);
         addMessage('agent', response);
         setState('listening');
       }, 1500);
     }, 1000);
-  }, [addMessage]);
+  }, [addMessage, currentStageId, getStageResponse]);
 
   const end = useCallback(() => {
     storage.setCompleted(true);
@@ -74,9 +95,8 @@ export const useConversationManager = () => {
       storage.reset();
       setCurrentStageId('INTRO');
       setTranscript([]);
-    } else {
-      connect();
     }
+    connect();
   }, [connect]);
 
   return {
