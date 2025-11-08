@@ -27,7 +27,7 @@ QUERY_ENGINE = None
 NARRATIVE_FILE_NAME = "nxtwave_onboarding_narrative.txt" # Switched to the correct narrative
 
 # --- Agent Persona Configuration ---
-AGENT_SPOKEN_NAME = "Harshitha"
+AGENT_SPOKEN_NAME = "Maya"
 AGENT_ROLE = "Registration Expert"
 CALLING_FROM_COMPANY = "NxtWave EdTech Company"
 PRIMARY_WEBSITE_CTA = "ccbp.in"

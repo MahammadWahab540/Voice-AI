@@ -1,0 +1,167 @@
+Create a responsive web app with /auth (name + mobile, no OTP) and /call (stepper, hero voice visualizer with End Call + Mute, and chat transcripts). Persist session to localStorage so the user resumes where they left off.
+
+Tech
+
+React + TypeScript + Vite
+
+TailwindCSS + shadcn/ui (Card, Button, Dialog, Input, Avatar)
+
+React Router
+
+Google Fonts: Poppins (headings), Inter (body)
+
+Brand tokens (light theme)
+
+--primary:#0058FF, --navy:#0A1A3F, --subtext:#475569, --error:#F56565
+
+--bg-start:#EAF4FF, --bg-end:#F9FBFF, --muted:#E2E8F0, --card:#FFFFFF
+Set body background to gradient var(--bg-start) → var(--bg-end).
+
+Routes
+
+/auth
+
+Centered card with inputs: Full Name, Phone Number (IN +91 helper).
+
+Validation: name ≥2 chars, phone = 10 digits (strip spaces/dashes).
+
+Button: Start Onboarding → on submit save {name, phone} to localStorage and route to /call.
+
+No OTP.
+
+/call
+
+Header: Logo (left), Stepper (center), user chip with initials + masked phone (right).
+
+Layout (desktop): two columns
+
+Left: TranscriptionPanel (scroll chat, auto-scroll, timestamps; Agent left/gray, You right/blue).
+
+Right: VoiceVisualizer (hero circle) + Controls below (Mute/Unmute toggle, End Call with confirm dialog).
+
+Mobile: stacks; controls become bottom bar.
+
+Stages (use exactly this model)
+
+export type StageId =
+  | 'INTRO' | 'PROGRAM_VALUE_L1' | 'PROGRAM_DETAILS'
+  | 'PAYMENT_STRUCTURE' | 'NBFC' | 'RCA' | 'KYC' | 'END_FLOW';
+
+export const STAGES = [
+  { id: 'INTRO', title: 'Intro' },
+  { id: 'PROGRAM_VALUE_L1', title: 'Program Value' },
+  { id: 'PROGRAM_DETAILS', title: 'Program Details' },
+  { id: 'PAYMENT_STRUCTURE', title: 'Payment' },
+  { id: 'NBFC', title: 'NBFC' },
+  { id: 'RCA', title: 'Co-Applicant' },
+  { id: 'KYC', title: 'KYC' },
+  { id: 'END_FLOW', title: 'Finish' },
+];
+
+
+Stepper must show completed, current, upcoming states.
+
+State & Persistence
+
+type AgentState = 'idle'|'connecting'|'listening'|'speaking'|'thinking'|'error';
+interface User { name:string; phone:string; }
+interface Message { id:string; speaker:'agent'|'user'; text:string; ts:number; }
+interface Snapshot {
+  user: User|null; currentStageId: StageId; transcript: Message[]; completed: boolean;
+}
+
+
+Persist to localStorage keys: maya.user, maya.currentStageId, maya.transcript, maya.completed.
+
+On load: if completed=true, reset to fresh flow; else resume exactly.
+
+AI/Conversation (client scaffold)
+
+Build hook useConversationManager() to abstract all live logic. Expose:
+
+state: AgentState, muted:boolean, currentStageId:StageId,
+transcript:Message[], mute(), end(), handleUserText(text).
+
+Stub Gemini Live integration (no need to implement server):
+
+Mic capture via navigator.mediaDevices.getUserMedia({audio:true}).
+
+Placeholder queue for PCM playback (can be mocked).
+
+Allow barge-in: when user speaks while agent speaking, stop playback.
+
+System instruction generator for each stage must enforce Tenglish and transition token:
+
+Persona: warm, confident, ~70% Telugu + 30% English.
+
+Model MUST end a stage-ready response with [STAGE_COMPLETE:NEXT_STAGE_ID].
+
+Client parses this token; on match:
+
+update currentStageId, persist, and reinitialize stage context.
+
+VoiceVisualizer states
+
+SPEAKING: dark navy circle with expanding aqua rings (CSS keyframes).
+
+LISTENING: white circle with soft blue shadow pulse.
+
+THINKING: solid primary blue with gentle opacity pulse.
+
+CONNECTING: spinner.
+
+ERROR: solid red.
+
+IDLE: neutral.
+
+Components to implement
+
+AuthScreen.tsx – form + validation, start button.
+
+MainScreen.tsx – header, layout, wiring to hook.
+
+Stepper.tsx – uses STAGES, props {activeId: StageId}.
+
+TranscriptionPanel.tsx – chat bubbles with timestamps.
+
+VoiceVisualizer.tsx – renders visual by AgentState.
+
+Controls.tsx – Mute/Unmute toggle, End Call (Dialog confirm).
+
+storage.ts – read/write/clear helpers for localStorage.
+
+stageMachine.ts – COMPLETE token regex \[STAGE_COMPLETE:([A-Z_]+)\]$, isValidStage(), nextStageId().
+
+UX details
+
+Buttons: hover/press transitions, focus rings.
+
+Auto-scroll transcript to bottom on new message.
+
+Keyboard shortcuts: M toggle mute, E end call.
+
+End Call → confirm dialog → stop streams, mark completed=true, navigate /auth.
+
+Acceptance
+
+Auth works with validation; no OTP.
+
+Refresh/close/reopen resumes same stage + transcript.
+
+Stepper reflects progress accurately.
+
+Visualizer reacts to states; Mute & End work with dialogs + persistence.
+
+Responsive: 2-column desktop, stacked mobile with sticky controls.
+
+Code split by components; Tailwind classes readable.
+
+Deliverables
+
+Vite React TS project with routes /auth, /call.
+
+All components + hooks + lib files above.
+
+Tailwind + shadcn configured; Poppins/Inter loaded.
+
+Minimal mock in useConversationManager to simulate agent/user messages for demo.

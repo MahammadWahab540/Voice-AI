@@ -1,4 +1,4 @@
-modules = ["python-3.11"]
+modules = ["python-3.11", "nodejs-20"]
 [agent]
 expertMode = true
 
@@ -15,10 +15,14 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "LiveKit Voice Agent"
+args = "Backend Agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
 
 [[workflows.workflow]]
-name = "LiveKit Voice Agent"
+name = "Backend Agent"
 author = "agent"
 
 [[workflows.workflow.tasks]]
@@ -28,18 +32,34 @@ args = "python agent.py dev"
 [workflows.workflow.metadata]
 outputType = "console"
 
-[[ports]]
-localPort = 36385
-externalPort = 3000
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd frontend && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[ports]]
-localPort = 37955
+localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 46161
+localPort = 33615
 externalPort = 3001
 
 [[ports]]
-localPort = 46321
+localPort = 37033
+externalPort = 3000
+
+[[ports]]
+localPort = 39595
+externalPort = 80
+
+[[ports]]
+localPort = 40075
 externalPort = 3002
