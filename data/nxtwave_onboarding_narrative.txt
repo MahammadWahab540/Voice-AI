@@ -1,0 +1,58 @@
+# NxtWave Onboarding Narrative - Placeholder
+
+This is a placeholder file for the NxtWave Onboarding Narrative.
+
+**IMPORTANT**: Replace this content with your actual NxtWave onboarding narrative that should include:
+
+## Section 1: Introduction & Rapport Building
+- Greeting script for the agent
+- How to introduce as Harshitha from NxtWave
+- Time request and objection handling
+
+## Section 2: Appreciation & Icebreaking
+- Congratulatory messaging
+- Rapport building questions
+- Professional engagement techniques
+
+## Section 3: NxtWave Program Value & Outcome
+- Education Gap explanation (Car Example)
+- Hands-on learning benefits
+- Individual Development Plan (IDP)
+- Growth Cycles and Success Coaches
+- Career readiness messaging
+
+## Section 4: Pricing & Payment Options
+- Full Payment option details
+- No-Cost EMI option details
+- How to present both options
+
+## Section 5: NBFC & No-Cost EMI Explanation
+- What NBFCs are
+- Partnership with NxtWave
+- No-Cost EMI benefits (no interest, small installments, no collateral)
+- RBI-approved partners (Varthana, Bajaj Finserv, etc.)
+
+## Section 6: KYC & Right Co-Applicant (RCA)
+- Co-applicant requirements
+- Required documents: PAN, Aadhaar, Bank Proof, Photo
+- Consent Video script
+- CIBIL check guidance
+- Alternative options if parent not eligible
+
+## Section 7: Resistance Handling
+- Common objections and responses
+- Concern about company stability
+- Funding questions
+- NSDC recognition
+- Other common parent concerns
+
+## Section 8: Closing & Urgency
+- How to ask for commitment
+- Urgency hooks (Generative AI Workshop, etc.)
+- Next steps for document submission
+- Website CTA: ccbp.in
+- Phone CTA: 8978487795
+
+---
+
+**Note**: Until this file is replaced with actual content, the agent will have limited knowledge and may not perform optimally.
